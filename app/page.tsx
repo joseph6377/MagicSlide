@@ -3,28 +3,30 @@
 import Chat from '@/components/chat'
 import SideView from '@/components/side-view'
 import NavBar from '@/components/navbar'
-
-import { AuthViewType, useAuth } from '@/lib/auth'
-import { useEffect, useState } from 'react'
+import SettingsDialog from '@/components/settings-dialog'
+import { useState, useEffect } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { ChatMessage, toAISDKMessages } from '@/lib/messages'
 import { experimental_useObject as useObject } from 'ai/react'
-import {ArtifactSchema, artifactSchema } from '@/lib/schema'
-import { usePostHog } from 'posthog-js/react'
-import { supabase } from '@/lib/supabase'
-import { AuthDialog } from '@/components/auth-dialog'
-import { PriceDialog } from '@/components/price-dialog'
+import { ArtifactSchema, artifactSchema } from '@/lib/schema'
 import { toast } from 'react-toastify'
 
+// The default API key from the .env.local file
+const DEFAULT_API_KEY = 'AIzaSyBMTHjzUL2CmwS3z4aEFcR_9yz2beTBB_w';
+
 export default function Home() {
-  const posthog = usePostHog()
   const [currentTab, setCurrentTab] = useState<'code' | 'artifact'>('code')
   const [isPreviewLoading, setIsPreviewLoading] = useState(false)
   const [artifact, setArtifact] = useState<Partial<ArtifactSchema> | undefined>()
-  const [authView, setAuthView] = useState<AuthViewType>('sign_in')
-  const [isAuthDialogOpen, setAuthDialog] = useState(false)
-  const [isPriceDialogOpen, setPriceDialogOpen] = useState(false)
-  const { session, apiKey } = useAuth(setAuthDialog, setAuthView)
+  const [isSettingsOpen, setSettingsOpen] = useState(false)
+  const [apiKey, setApiKey] = useLocalStorage('slidemagic-api-key', DEFAULT_API_KEY)
+
+  // Reset the UI to initial state
+  const resetUI = () => {
+    setMessages([])
+    setChatInput('')
+    setArtifact(undefined)
+  }
 
   const { object, submit, isLoading, stop } = useObject({
     api: '/api/chat',
@@ -52,25 +54,7 @@ export default function Home() {
     }
   }, [object])
 
-  
-  const logout = () => {
-    supabase.auth.signOut()
-  }
-
-  const checkLimit = async (): Promise<boolean> => {
-    const res = await fetch('/api/limit', {
-      method: 'GET',
-    });
-
-    if (res.status === 429) {
-      toast.error('You have reached your request limit for the day')
-      return true
-    }
-
-    return false
-  }
-
-  const [chatInput, setChatInput] = useLocalStorage('chat', '')
+  const [chatInput, setChatInput] = useLocalStorage('slidemagic-chat', '')
   const handleSaveInputChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     setChatInput(e.target.value)
   }
@@ -80,64 +64,59 @@ export default function Home() {
     setMessages(previousMessages => [...previousMessages, message])
     return [...messages, message]
   }
-  const handleSubmitAuth = async (e?: React.FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
-
-    if (!session) {
-      return setAuthDialog(true)
-    }
-
 
     if (isLoading) {
       stop()
+      return
     }
 
-    const limited = await checkLimit()
-    if (limited) {
+    if (!chatInput.trim()) {
+      toast.error('Please enter a description for your presentation')
       return
     }
 
     const content: ChatMessage['content'] = [{ type: 'text', text: chatInput }]
 
+    // Include the API key in the request metadata
     submit({
-      userID: session?.user?.id,
       messages: toAISDKMessages(addMessage({role: 'user', content})),
+      apiKey: apiKey
     })
 
     addMessage({
       role: 'assistant',
-      content: [{ type: 'text', text: 'Generating RevealJS ppt...' }],
+      content: [{ type: 'text', text: 'Generating your presentation...' }],
     })
 
     setChatInput('')
     setCurrentTab('code')
     setIsPreviewLoading(true)
-
-    posthog.capture('chat_submit')
+    toast.info('Creating your presentation...', { autoClose: 2000 })
   }
 
   return (
-    <main className="flex min-h-screen max-h-screen">
-      {<>
-        <AuthDialog open={isAuthDialogOpen} setOpen={setAuthDialog} view={authView} supabase={supabase} />
-        <PriceDialog open={isPriceDialogOpen} setOpen={setPriceDialogOpen}></PriceDialog>
-      </>
-      }
-      <NavBar
-        session={session}
-        showLogin={() => setAuthDialog(true)}
-        signOut={logout}
-        showPrice={() => setPriceDialogOpen(true)}
+    <main className="flex min-h-screen max-h-screen bg-gradient-to-br">
+      <NavBar 
+        onReset={resetUI}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
-
-      <div className="flex-1 flex space-x-8 w-full pt-16 pb-8 px-4">
+      <SettingsDialog 
+        open={isSettingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        apiKey={apiKey}
+        onApiKeyChange={setApiKey}
+      />
+      <div className="flex-1 flex space-x-6 w-full pt-16 pb-6 px-6">
         <Chat
-           isLoading={isLoading}
-           handleSubmit={handleSubmitAuth}
-           input={chatInput}
-           setChatInput={setChatInput}
-           handleInputChange={handleSaveInputChange}
-           messages={messages}
+          isLoading={isLoading}
+          handleSubmit={handleSubmit}
+          input={chatInput}
+          setChatInput={setChatInput}
+          handleInputChange={handleSaveInputChange}
+          messages={messages}
         />
         <SideView
           isLoading={isPreviewLoading}

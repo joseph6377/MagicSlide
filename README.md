@@ -1,64 +1,72 @@
-<h1 align="center">Welcome to RevealJS AI 👋</h1>
+<h1 align="center">Welcome to SlideMagic AI 🪄</h1>
 
-[中文说明](/README_CN.md)
+A beautiful AI-powered presentation generator that creates stunning slides from simple text prompts. Built with modern technology and designed for local use without requiring external services.
 
-## ✨ Demo
-[/public/demo.mp4](https://github.com/user-attachments/assets/d5a4b37a-553b-41b4-ba33-ad457d118311)
+## ✨ Features
 
-Try it Online ⚡️:  [Revealjs AI](https://ppt.revealjs.online)
+- **AI-Powered Presentations**: Generate professional-looking presentations from text descriptions
+- **Modern UI**: Clean, intuitive interface with a beautiful dark theme
+- **Local Operation**: Runs completely on your machine with no data sent to external services (except to Gemini API)
+- **Custom API Key**: Use your own Google Gemini API key or the provided default
+- **Instant Previews**: See your generated presentation code and preview in real-time
+- **One-Click Download**: Export your presentations as HTML files
 
 ## 🚀 Getting Started
 
-### install
+### Installation
+
 ```sh
+# Clone the repository
+git clone https://github.com/josephti/slidemagic-ai.git
+cd slidemagic-ai
+
+# Install dependencies
 pnpm install
 ```
-### set environmental values
-set .env.local under root dir with values list below
+
+### Configuration
+
+Create a `.env.local` file in the root directory with your Gemini API key:
+
 ```sh
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-KV_REST_API_URL=
-KV_REST_API_TOKEN=
-GEMINI_API_KEY=
+# Only Gemini API key is needed
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
-### usege
+
+You can also set your API key directly from the settings menu in the application.
+
+### Usage
+
 ```sh
+# Start the development server
 pnpm run dev
 ```
 
-## 💻 TechStack
-- [Nextjs](https://nextjs.org/docs) - Full Stack Development
-- [Tailwindcss](https://tailwindcss.com/) - CSS Engine
-- [Supabase](https://supabase.com/) - User OAuth
-- [Stripe](https://stripe.com/docs/development) - Payment
+Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## 💗  Credit
-- [Gemini API](https://gemini.google.com/app) - AI Powered
-- [ai-artifacts](https://github.com/e2b-dev/ai-artifacts) - Reference
+## 📝 How to Use
 
-## 👤 Author
-**YOYZHANG**
+1. Click the settings gear icon in the top right to configure your Gemini API key (optional)
+2. Type your presentation description in the main input field
+3. Press Enter or click the magic wand icon to generate your presentation
+4. Switch between Code and Preview tabs to see and interact with your presentation
+5. Download the HTML file to save your presentation
+6. Click on the SlideMagic AI logo any time to reset and start over
 
-- Twitter: [@alexu19049062](https://twitter.com/alexuzhang19049062)
-- Github: [@YOYZHANG](https://github.com/YOYZHANG)
-- Wechat: whdxzxq
+## 💻 Tech Stack
+- [Next.js](https://nextjs.org/docs) - React Framework
+- [TailwindCSS](https://tailwindcss.com/) - Styling
+- [Google Gemini API](https://ai.google.dev/) - AI Text Generation
+- [Reveal.js](https://revealjs.com/) - Presentation Framework
 
-## 🤝 Contributing
-
-Contributions, issues and feature requests are welcome. 😄<br />
-Feel free to check [issues page](https://github.com/YOYZHANG/ai-ppt/issues) if you want to contribute.<br />
-
+## 💗 Credits
+- **Built by**: [Joseph Thekkekara](https://josepht.in)
+- **Original Project**: Based on [RevealJS AI](https://github.com/YOYZHANG/ai-ppt) by [YOYZHANG](https://github.com/YOYZHANG)
+- [Gemini API](https://ai.google.dev/) - AI Engine
 
 ## 📝 License
-MIT License © 2024 YOYZHANG
-
-## Others
-
-Please ⭐️ this repository if this project helped you!
-
-Your appreciation is my greatest strength in updating content！
-
-<a href="https://www.buymeacoffee.com/zhangxiaoqian" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+MIT License © 2024
 
 ---
+
+If you find this project helpful, please consider giving it a star! ⭐️

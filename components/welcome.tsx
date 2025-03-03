@@ -1,14 +1,14 @@
 'use client'
 
-import React, { FormEvent, ChangeEvent, useEffect } from 'react';
-import { Sparkles, Presentation } from 'lucide-react';
+import React, { FormEvent, ChangeEvent } from 'react';
+import { Sparkles, Presentation, Wand2, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from './ui/textarea';
 
-const Lint = [
-  "Create a PPT on how ChatGPT works.",
-  "Generate a PPT explaining the API integration of ChatGPT in web applications, including key steps and practical examples.",
-  "Compares ChatGPT with other conversational AI models, such as Gemini, in terms of architecture and performance."
+const Examples = [
+  "RGM levers in CPG industry",
+  "Digital transformation in consumer goods",
+  "Blockchain for CPG traceability"
 ]
 
 interface Props {
@@ -18,8 +18,8 @@ interface Props {
   value: string
 }
 export default function Welcome({onSubmit, onChange, value, setChatInput}: Props) {
-  const handleClick = (lint: string) => {
-    setChatInput(lint)
+  const handleClick = (example: string) => {
+    setChatInput(example)
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -30,63 +30,68 @@ export default function Welcome({onSubmit, onChange, value, setChatInput}: Props
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-8 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl mt-[150px]">
-      <h1 className="text-2xl font-serif mb-8 flex items-center text-gray-100 animate-fade-in">
-        <Presentation className="w-10 h-10 text-[#c5f955] mr-3 animate-pulse" />
-        <div>
-          <p>
-              <span>
-                Type the Topic for your Presentation, 
-              </span>
-              <span  className='relative'>
-                It is Free!
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 418 42"
-                  className="absolute left-0 top-2/3 h-[0.58em] w-full fill-blue-300/70"
-                  preserveAspectRatio="none"
-                >
-                  <path d="M203.371.916c-26.013-2.078-76.686 1.963-124.73 9.946L67.3 12.749C35.421 18.062 18.2 21.766 6.004 25.934 1.244 27.561.828 27.778.874 28.61c.07 1.214.828 1.121 9.595-1.176 9.072-2.377 17.15-3.92 39.246-7.496C123.565 7.986 157.869 4.492 195.942 5.046c7.461.108 19.25 1.696 19.17 2.582-.107 1.183-7.874 4.31-25.75 10.366-21.992 7.45-35.43 12.534-36.701 13.884-2.173 2.308-.202 4.407 4.442 4.734 2.654.187 3.263.157 15.593-.78 35.401-2.686 57.944-3.488 88.365-3.143 46.327.526 75.721 2.23 130.788 7.584 19.787 1.924 20.814 1.98 24.557 1.332l.066-.011c1.201-.203 1.53-1.825.399-2.335-2.911-1.31-4.893-1.604-22.048-3.261-57.509-5.556-87.871-7.36-132.059-7.842-23.239-.254-33.617-.116-50.627.674-11.629.54-42.371 2.494-46.696 2.967-2.359.259 8.133-3.625 26.504-9.81 23.239-7.825 27.934-10.149 28.304-14.005.417-4.348-3.529-6-16.878-7.066Z"></path>
-                </svg>
-              </span>
-              
-          </p>
-        </div>
-      </h1>
-      <div>
-        <form className="relative" onSubmit={onSubmit}>
-          <Textarea
-            className="w-full p-[20px] pr-[50px] text-white bg-black border rounded-lg resize-none focus-visible:outline-none"
-            rows={7}
-            value={value}
-            onKeyDown={handleKeyDown}
-            onChange={onChange}
-            placeholder="Describe your topic..."
-          />
-          {value && 
-          <Button variant="secondary" size="icon" className='absolute right-3 top-3 text-white p-2 rounded-full'>
-            <Sparkles className="h-5 w-5 text-[#c5f955]" />
-          </Button>}
-          <div className="absolute left-3 bottom-3 right-3 flex justify-between items-center text-sm text-gray-600">
-            <span>Gemini Flash</span>
+    <div className="flex flex-col items-center">
+      <div className="max-w-2xl w-full mx-auto p-8 rounded-xl bg-gradient-to-b from-slate-800/50 to-slate-900/70 backdrop-blur-sm border border-slate-700 transition-all duration-300 hover:border-indigo-500/50 mt-[100px]">
+        <div className="flex items-center justify-center mb-10">
+          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-3 rounded-xl shadow-lg shadow-indigo-500/20">
+            <Presentation className="w-10 h-10 text-white" />
           </div>
-        </form>
-      </div>
-      <div className="mt-6">
-        <p className="text-sm text-gray-400 mb-3 font-medium">Get started with an example:</p>
-        <div className="flex flex-wrap gap-2">
-          {Lint.map((example, index) => (
-            <button 
-              key={index} 
-              className="px-4 py-2 bg-black rounded-full text-sm text-gray-500 hover:bg-gray-800 hover:text-gray-300 transition-all duration-300 hover:shadow-md text-left"
-              onClick={() => handleClick(example)}
-            >
-              {example}
-            </button>
-          ))}
+          <h1 className="text-4xl font-bold ml-4 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+            SlideMagic AI
+          </h1>
         </div>
+        
+        <p className="text-center text-slate-300 mb-8 text-lg leading-relaxed">
+          Create beautiful presentations with AI. Just describe what you want.
+          <br />
+          <span className="mt-4 block font-medium text-indigo-300">
+            To start enter Google Gemini API Key in the settings.
+          </span>
+        </p>
+        
+        <div>
+          <form className="relative" onSubmit={onSubmit}>
+            <Textarea
+              className="w-full p-6 pr-16 text-lg text-white bg-slate-900/80 border border-slate-700 rounded-lg resize-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+              rows={4}
+              value={value}
+              onKeyDown={handleKeyDown}
+              onChange={onChange}
+              placeholder="Describe your presentation topic..."
+            />
+            {value && 
+            <Button variant="secondary" size="icon" className='absolute right-4 top-4 bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full shadow-md'>
+              <Wand2 className="h-6 w-6 text-white" />
+            </Button>}
+            <div className="absolute left-4 bottom-4 right-4 flex justify-between items-center text-sm text-slate-400">
+              <span className="font-medium">Powered by AI</span>
+            </div>
+          </form>
+        </div>
+        
+        <div className="mt-10">
+          <p className="text-base text-slate-300 mb-4 font-medium">Try one of these examples:</p>
+          <div className="flex flex-wrap gap-3">
+            {Examples.map((example, index) => (
+              <button 
+                key={index} 
+                className="px-5 py-2.5 bg-slate-800 border border-slate-700 rounded-full text-base text-slate-300 hover:bg-indigo-600/20 hover:border-indigo-500 hover:text-white transition-all duration-300 text-left"
+                onClick={() => handleClick(example)}
+              >
+                {example}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Credits section with improved styling */}
+      <div className="mt-8 text-center max-w-2xl w-full mx-auto">
+        <p className="text-sm text-slate-400 leading-relaxed">
+          <span className="block mb-2">Built by <a href="https://josepht.in" target="_blank" className="text-indigo-400 hover:text-indigo-300 hover:underline font-medium">Joseph Thekkekara</a></span>
+          <span>Based on <a href="https://github.com/YOYZHANG/ai-ppt" target="_blank" className="text-indigo-400 hover:text-indigo-300 hover:underline font-medium">RevealJS AI</a> by YOYZHANG</span>
+        </p>
       </div>
     </div>
   );
 };
-
