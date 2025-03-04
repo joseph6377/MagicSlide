@@ -4,6 +4,7 @@ import { ChatMessage } from '@/lib/messages'
 import { Button } from '@/components/ui/button'
 import Welcome from './welcome'
 import { Input } from './ui/input'
+import Image from 'next/image'
 
 interface ChatProps {
   isLoading: boolean,
@@ -12,6 +13,9 @@ interface ChatProps {
   input: string
   handleInputChange: (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => void,
   messages: ChatMessage[]
+  theme?: string
+  setTheme?: (theme: string) => void
+  themes?: string[]
 }
 
 export default function Chat({
@@ -21,13 +25,19 @@ export default function Chat({
   messages,
   handleInputChange,
   handleSubmit,
+  theme,
+  setTheme,
+  themes
 }: ChatProps) {
+  // Extract the complex expression to a separate variable for dependency tracking
+  const messagesLength = messages.length;
+  
   useEffect(() => {
     const chatContainer = document.getElementById('chat-container')
     if (chatContainer) {
       chatContainer.scrollTop = chatContainer.scrollHeight
     }
-  }, [JSON.stringify(messages)])
+  }, [messagesLength])
 
   return (
     <div className="flex-1 flex flex-col gap-4 max-h-full max-w-[800px] mx-auto justify-between">
@@ -49,7 +59,14 @@ export default function Chat({
                   }
 
                   if (content.type === 'image') {
-                    return <img key={id} src={content.image} alt="artifact" className="mr-2 inline-block w-[50px] h-[50px] object-contain border rounded-lg bg-white mt-2" />
+                    return <Image 
+                      key={id} 
+                      src={content.image} 
+                      alt="artifact" 
+                      width={50}
+                      height={50}
+                      className="mr-2 inline-block w-[50px] h-[50px] object-contain border rounded-lg bg-white mt-2" 
+                    />
                   }
                 })}
                 {message.meta &&
@@ -96,6 +113,9 @@ export default function Chat({
           onChange={handleInputChange}
           setChatInput={setChatInput}
           value={input}
+          theme={theme}
+          setTheme={setTheme}
+          themes={themes}
         />}
     </div>
   )

@@ -1,9 +1,5 @@
 'use client'
 
-import Chat from '@/components/chat'
-import SideView from '@/components/side-view'
-import NavBar from '@/components/navbar'
-import SettingsDialog from '@/components/settings-dialog'
 import { useState, useEffect } from 'react'
 import { useLocalStorage } from 'usehooks-ts'
 import { ChatMessage, toAISDKMessages } from '@/lib/messages'
@@ -11,6 +7,23 @@ import { experimental_useObject as useObject } from 'ai/react'
 import { ArtifactSchema, artifactSchema } from '@/lib/schema'
 import { toast } from 'react-toastify'
 import { htmlTemplate as defaultHtmlTemplate } from '@/lib/template'
+import dynamic from 'next/dynamic'
+
+// Dynamically import components with client-side only dependencies
+const Chat = dynamic(() => import('@/components/chat'), { ssr: false })
+const SideView = dynamic(() => import('@/components/side-view'), { ssr: false })
+const NavBar = dynamic(() => import('@/components/navbar'), { ssr: false })
+const SettingsDialog = dynamic(() => import('@/components/settings-dialog'), { ssr: false })
+
+// Available Reveal.js themes
+const REVEAL_THEMES = [
+  'black',
+  'white',
+  'league',
+  'night',
+  'moon',
+  'solarized'
+]
 
 // The default API key - empty by default
 const DEFAULT_API_KEY = '';
@@ -36,12 +49,24 @@ export default function Home() {
   const [apiKey, setApiKey] = useLocalStorage('slidemagic-api-key', DEFAULT_API_KEY)
   const [systemPrompt, setSystemPrompt] = useLocalStorage('slidemagic-system-prompt', DEFAULT_SYSTEM_PROMPT)
   const [htmlTemplate, setHtmlTemplate] = useLocalStorage('slidemagic-html-template', defaultHtmlTemplate)
+  const [theme, setTheme] = useLocalStorage('slidemagic-theme', 'black')
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [chatInput, setChatInput] = useLocalStorage('slidemagic-chat', '')
 
   // Reset the UI to initial state
   const resetUI = () => {
     setMessages([])
     setChatInput('')
     setArtifact(undefined)
+  }
+
+  const handleSaveInputChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    setChatInput(e.target.value)
+  }
+
+  const addMessage = (message: ChatMessage) => {
+    setMessages(previousMessages => [...previousMessages, message])
+    return [...messages, message]
   }
 
   const { object, submit, isLoading, stop } = useObject({
@@ -68,18 +93,7 @@ export default function Home() {
         }
       }
     }
-  }, [object])
-
-  const [chatInput, setChatInput] = useLocalStorage('slidemagic-chat', '')
-  const handleSaveInputChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    setChatInput(e.target.value)
-  }
-
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const addMessage = (message: ChatMessage) => {
-    setMessages(previousMessages => [...previousMessages, message])
-    return [...messages, message]
-  }
+  }, [object, messages])
 
   const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
@@ -103,12 +117,18 @@ export default function Home() {
 
     const content: ChatMessage['content'] = [{ type: 'text', text: chatInput }]
 
+    // Create a modified HTML template with the selected theme
+    const themedHtmlTemplate = htmlTemplate.replace(
+      /theme\/[a-z]+\.min\.css/,
+      `theme/${theme}.min.css`
+    )
+
     // Include the API key, system prompt and HTML template in the request metadata
     submit({
       messages: toAISDKMessages(addMessage({role: 'user', content})),
       apiKey: apiKey,
       systemPrompt: systemPrompt,
-      htmlTemplate: htmlTemplate
+      htmlTemplate: themedHtmlTemplate
     })
 
     addMessage({
@@ -146,6 +166,9 @@ export default function Home() {
           setChatInput={setChatInput}
           handleInputChange={handleSaveInputChange}
           messages={messages}
+          theme={theme}
+          setTheme={setTheme}
+          themes={REVEAL_THEMES}
         />
         <SideView
           isLoading={isPreviewLoading}
