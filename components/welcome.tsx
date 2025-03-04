@@ -1,9 +1,10 @@
 'use client'
 
 import React, { FormEvent, ChangeEvent } from 'react';
-import { Sparkles, Presentation, Wand2, Github } from 'lucide-react';
+import { Sparkles, Wand2, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from './ui/textarea';
+import Image from 'next/image';
 
 const Examples = [
   "RGM levers in CPG industry",
@@ -33,10 +34,17 @@ export default function Welcome({onSubmit, onChange, value, setChatInput}: Props
     <div className="flex flex-col items-center">
       <div className="max-w-2xl w-full mx-auto p-8 rounded-xl bg-gradient-to-b from-slate-800/50 to-slate-900/70 backdrop-blur-sm border border-slate-700 transition-all duration-300 hover:border-indigo-500/50 mt-[100px]">
         <div className="flex items-center justify-center mb-10">
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-3 rounded-xl shadow-lg shadow-indigo-500/20">
-            <Presentation className="w-10 h-10 text-white" />
+          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-3 rounded-xl shadow-lg shadow-indigo-500/20 flex items-center justify-center">
+            <Image 
+              src="/logo.svg" 
+              alt="SlideMagic AI Logo" 
+              width={46} 
+              height={46} 
+              className="text-white" 
+              priority
+            />
           </div>
-          <h1 className="text-4xl font-bold ml-4 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold ml-4 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
             SlideMagic AI
           </h1>
         </div>
@@ -45,7 +53,7 @@ export default function Welcome({onSubmit, onChange, value, setChatInput}: Props
           Create beautiful presentations with AI. Just describe what you want.
           <br />
           <span className="mt-4 block font-medium text-indigo-300">
-            To start enter Google Gemini API Key in the settings.
+            To start, get a free Google Gemini API key from <a href="https://makersuite.google.com/app/apikey" target="_blank" className="underline hover:text-indigo-200">Google AI Studio</a> and enter it in the settings.
           </span>
         </p>
         

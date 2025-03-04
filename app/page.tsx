@@ -10,9 +10,23 @@ import { ChatMessage, toAISDKMessages } from '@/lib/messages'
 import { experimental_useObject as useObject } from 'ai/react'
 import { ArtifactSchema, artifactSchema } from '@/lib/schema'
 import { toast } from 'react-toastify'
+import { htmlTemplate as defaultHtmlTemplate } from '@/lib/template'
 
-// The default API key from the .env.local file
-const DEFAULT_API_KEY = 'AIzaSyBMTHjzUL2CmwS3z4aEFcR_9yz2beTBB_w';
+// The default API key - empty by default
+const DEFAULT_API_KEY = '';
+
+// Default system prompt (content instructions only)
+const DEFAULT_SYSTEM_PROMPT = `
+Create a comprehensive and engaging presentation with the following structure:
+1. An appealing cover slide with a clear title and subtitle
+2. An introduction slide that sets context
+3. Several content slides with well-organized bullet points, relevant data and insights
+4. A conclusion slide that summarizes key points
+5. A final slide with contact information or call to action
+
+Use professional language and ensure all content is well-structured and easy to follow.
+Make the content informative, engaging and visually descriptive.
+`;
 
 export default function Home() {
   const [currentTab, setCurrentTab] = useState<'code' | 'artifact'>('code')
@@ -20,6 +34,8 @@ export default function Home() {
   const [artifact, setArtifact] = useState<Partial<ArtifactSchema> | undefined>()
   const [isSettingsOpen, setSettingsOpen] = useState(false)
   const [apiKey, setApiKey] = useLocalStorage('slidemagic-api-key', DEFAULT_API_KEY)
+  const [systemPrompt, setSystemPrompt] = useLocalStorage('slidemagic-system-prompt', DEFAULT_SYSTEM_PROMPT)
+  const [htmlTemplate, setHtmlTemplate] = useLocalStorage('slidemagic-html-template', defaultHtmlTemplate)
 
   // Reset the UI to initial state
   const resetUI = () => {
@@ -78,12 +94,21 @@ export default function Home() {
       return
     }
 
+    // Check if API key is provided
+    if (!apiKey.trim()) {
+      toast.error('API key is required. Please enter your Google Gemini API key in the settings.')
+      setSettingsOpen(true)
+      return
+    }
+
     const content: ChatMessage['content'] = [{ type: 'text', text: chatInput }]
 
-    // Include the API key in the request metadata
+    // Include the API key, system prompt and HTML template in the request metadata
     submit({
       messages: toAISDKMessages(addMessage({role: 'user', content})),
-      apiKey: apiKey
+      apiKey: apiKey,
+      systemPrompt: systemPrompt,
+      htmlTemplate: htmlTemplate
     })
 
     addMessage({
@@ -108,6 +133,10 @@ export default function Home() {
         onClose={() => setSettingsOpen(false)}
         apiKey={apiKey}
         onApiKeyChange={setApiKey}
+        systemPrompt={systemPrompt}
+        onSystemPromptChange={setSystemPrompt}
+        htmlTemplate={htmlTemplate}
+        onHtmlTemplateChange={setHtmlTemplate}
       />
       <div className="flex-1 flex space-x-6 w-full pt-16 pb-6 px-6">
         <Chat

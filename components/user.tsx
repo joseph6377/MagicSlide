@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Session } from '@supabase/supabase-js'
+// Remove Supabase import and define a local type
+// import { Session } from '@supabase/supabase-js'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -10,6 +11,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { LogOut } from "lucide-react";
+
+// Define a simple Session type to replace the Supabase one
+interface Session {
+  user: {
+    id: string;
+    email?: string;
+    user_metadata?: {
+      name?: string;
+      avatar_url?: string;
+    };
+  };
+}
 
 interface Props {
   session: Session | null,
@@ -25,12 +38,12 @@ export function User({ session, signOut, showLogin }: Props) {
         <DropdownMenuTrigger asChild>
           <Avatar className="cursor-pointer">
             <AvatarImage src={session.user?.user_metadata?.avatar_url}/>
-            <AvatarFallback>{session.user.user_metadata.name}</AvatarFallback>
+            <AvatarFallback>{session.user.user_metadata?.name}</AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="mx-4">
           <DropdownMenuLabel className="text-center truncate">
-            {session.user.user_metadata.name}
+            {session.user.user_metadata?.name}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuLabel className="text-center truncate">

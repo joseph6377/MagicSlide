@@ -17,6 +17,14 @@ const robotoMono = Roboto_Mono({
 export const metadata: Metadata = {
   title: "SlideMagic AI - Beautiful Presentations",
   description: "Generate beautiful presentations with AI - Built by Joseph Thekkekara",
+  icons: {
+    icon: [
+      {
+        url: '/images/favicon.svg',
+        type: 'image/svg+xml',
+      }
+    ],
+  }
 };
 
 export default function RootLayout({
@@ -26,6 +34,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${robotoMono.variable}`}>
+      <head>
+        <link rel="icon" href="/images/favicon.svg" type="image/svg+xml" />
+      </head>
       <body className={inter.className}>
         <ToastContainer 
           position="bottom-right"
