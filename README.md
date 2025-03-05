@@ -10,6 +10,9 @@ A beautiful AI-powered presentation generator that creates stunning slides from 
 - **Custom API Key**: Use your own Google Gemini API key or the provided default
 - **Instant Previews**: See your generated presentation code and preview in real-time
 - **One-Click Download**: Export your presentations as HTML files
+- **Fullscreen Preview**: View your presentations in fullscreen mode with one click
+- **Theme Selection**: Choose from various presentation themes
+- **Manual Image Selection**: Add images to your presentations from Pixabay
 
 ## 🚀 Getting Started
 
@@ -48,16 +51,25 @@ Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
 1. Click the settings gear icon in the top right to configure your Gemini API key (optional)
 2. Type your presentation description in the main input field
-3. Press Enter or click the magic wand icon to generate your presentation
-4. Switch between Code and Preview tabs to see and interact with your presentation
-5. Download the HTML file to save your presentation
-6. Click on the SlideMagic AI logo any time to reset and start over
+3. Select a presentation theme from the dropdown
+4. To add images:
+   - Click "Advanced Options" below the input field
+   - Use the "Search Images" button to find and select images from Pixabay
+   - Selected images will be added to your prompt automatically
+5. Press Enter or click the magic wand icon to generate your presentation
+6. Switch between Code and Preview tabs to see and interact with your presentation
+7. Use the fullscreen button to view your presentation in presentation mode
+8. Download the HTML file to save your presentation
+9. Click on the SlideMagic AI logo any time to reset and start over
+
+> **Note**: If you want a completely image-free presentation, include "no images please" in your prompt.
 
 ## 💻 Tech Stack
 - [Next.js](https://nextjs.org/docs) - React Framework
 - [TailwindCSS](https://tailwindcss.com/) - Styling
 - [Google Gemini API](https://ai.google.dev/) - AI Text Generation
 - [Reveal.js](https://revealjs.com/) - Presentation Framework
+- [Pixabay API](https://pixabay.com/api/docs/) - Image Search
 
 ## 💗 Credits
 - **Built by**: [Joseph Thekkekara](https://josepht.in)

@@ -1,10 +1,11 @@
 import { ChangeEvent, FormEvent, useEffect } from 'react'
-import { SendHorizonal, Square, Wand2, Terminal } from 'lucide-react'
+import { SendHorizonal, Square, Wand2, Terminal, Image as ImageIcon } from 'lucide-react'
 import { ChatMessage } from '@/lib/messages'
 import { Button } from '@/components/ui/button'
 import Welcome from './welcome'
 import { Input } from './ui/input'
 import Image from 'next/image'
+import PixabayButton from './pixabay-button'
 
 interface ChatProps {
   isLoading: boolean,
@@ -16,6 +17,7 @@ interface ChatProps {
   theme?: string
   setTheme?: (theme: string) => void
   themes?: string[]
+  autoSearchImages?: boolean
 }
 
 export default function Chat({
@@ -27,7 +29,8 @@ export default function Chat({
   handleSubmit,
   theme,
   setTheme,
-  themes
+  themes,
+  autoSearchImages = false
 }: ChatProps) {
   // Extract the complex expression to a separate variable for dependency tracking
   const messagesLength = messages.length;
@@ -38,6 +41,26 @@ export default function Chat({
       chatContainer.scrollTop = chatContainer.scrollHeight
     }
   }, [messagesLength])
+
+  // Handle inserting Pixabay image HTML into the chat input
+  const handleInsertImage = (html: string) => {
+    // Add the HTML to the current input
+    const newInput = input + '\n\nInclude this image in the presentation:\n' + html;
+    setChatInput(newInput);
+  };
+
+  // Handle inserting multiple Pixabay images into the chat input
+  const handleInsertMultipleImages = (htmlArray: string[]) => {
+    if (htmlArray.length === 0) return;
+    
+    // Create a message with all images to include
+    let newInput = input + '\n\nInclude these images in the presentation:\n';
+    htmlArray.forEach((html, index) => {
+      newInput += `\nImage ${index + 1}:\n${html}`;
+    });
+    
+    setChatInput(newInput);
+  };
 
   return (
     <div className="flex-1 flex flex-col gap-4 max-h-full max-w-[800px] mx-auto justify-between">
@@ -85,20 +108,33 @@ export default function Chat({
           </div>
 
           <div className="flex flex-col gap-2 mb-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-600/20 border border-slate-500/30 rounded-md text-xs text-slate-200">
+              <ImageIcon size={14} className="text-slate-300" />
+              <span>Use the image button to manually add images to your presentation.</span>
+            </div>
             <form onSubmit={handleSubmit} className="flex flex-row gap-2 items-center">
-              <Input
-                className="focus:outline-none border-slate-700 bg-slate-800/80 text-white py-6 px-4 focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-lg"
-                required={true}
-                placeholder="Describe your presentation..."
-                value={input}
-                onChange={handleInputChange}
-              />
+              <div className="relative flex-1">
+                <Input
+                  className="focus:outline-none border-slate-700 bg-slate-800/80 text-white py-6 px-4 focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-lg pr-10"
+                  required={true}
+                  placeholder="Describe your presentation..."
+                  value={input}
+                  onChange={handleInputChange}
+                />
+                <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                  <PixabayButton 
+                    onInsertImage={handleInsertImage} 
+                    onInsertMultipleImages={handleInsertMultipleImages}
+                    allowMultiple={true}
+                  />
+                </div>
+              </div>
               { !isLoading ? (
                   <Button type="submit" variant="secondary" size="icon" className='rounded-full bg-indigo-600 hover:bg-indigo-700 text-white h-12 w-12'>
                     <SendHorizonal className="h-5 w-5 text-white" />
                   </Button>
               ) : (
-                  <Button variant="secondary" size="icon" className='rounded-full bg-slate-700 hover:bg-slate-600 text-white h-12 w-12' onClick={(e) => { e.preventDefault(); stop() }}>
+                  <Button variant="secondary" size="icon" className='rounded-full bg-slate-700 hover:bg-slate-600 text-white h-12 w-12' onClick={(e) => { e.preventDefault(); handleSubmit() }}>
                     <Square className="h-5 w-5 text-white" />
                   </Button>
                 )
@@ -116,6 +152,7 @@ export default function Chat({
           theme={theme}
           setTheme={setTheme}
           themes={themes}
+          autoSearchImages={autoSearchImages}
         />}
     </div>
   )

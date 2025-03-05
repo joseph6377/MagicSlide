@@ -28,6 +28,9 @@ const REVEAL_THEMES = [
 // The default API key - empty by default
 const DEFAULT_API_KEY = '';
 
+// Default Pixabay API key - using the one from the example
+const DEFAULT_PIXABAY_API_KEY = '49170333-b9269c8d15b388c14bcbbe621';
+
 // Default system prompt (content instructions only)
 const DEFAULT_SYSTEM_PROMPT = `
 Create a comprehensive and engaging presentation with the following structure:
@@ -47,9 +50,11 @@ export default function Home() {
   const [artifact, setArtifact] = useState<Partial<ArtifactSchema> | undefined>()
   const [isSettingsOpen, setSettingsOpen] = useState(false)
   const [apiKey, setApiKey] = useLocalStorage('slidemagic-api-key', DEFAULT_API_KEY)
+  const [pixabayApiKey, setPixabayApiKey] = useLocalStorage('slidemagic-pixabay-api-key', DEFAULT_PIXABAY_API_KEY)
   const [systemPrompt, setSystemPrompt] = useLocalStorage('slidemagic-system-prompt', DEFAULT_SYSTEM_PROMPT)
   const [htmlTemplate, setHtmlTemplate] = useLocalStorage('slidemagic-html-template', defaultHtmlTemplate)
   const [theme, setTheme] = useLocalStorage('slidemagic-theme', 'black')
+  const [autoSearchImages, setAutoSearchImages] = useLocalStorage('slidemagic-auto-search-images', false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [chatInput, setChatInput] = useLocalStorage('slidemagic-chat', '')
 
@@ -128,7 +133,8 @@ export default function Home() {
       messages: toAISDKMessages(addMessage({role: 'user', content})),
       apiKey: apiKey,
       systemPrompt: systemPrompt,
-      htmlTemplate: themedHtmlTemplate
+      htmlTemplate: themedHtmlTemplate,
+      autoSearchImages: autoSearchImages
     })
 
     addMessage({
@@ -157,6 +163,10 @@ export default function Home() {
         onSystemPromptChange={setSystemPrompt}
         htmlTemplate={htmlTemplate}
         onHtmlTemplateChange={setHtmlTemplate}
+        pixabayApiKey={pixabayApiKey}
+        onPixabayApiKeyChange={setPixabayApiKey}
+        autoSearchImages={autoSearchImages}
+        onAutoSearchImagesChange={setAutoSearchImages}
       />
       <div className="flex-1 flex space-x-6 w-full pt-16 pb-6 px-6">
         <Chat
@@ -169,6 +179,7 @@ export default function Home() {
           theme={theme}
           setTheme={setTheme}
           themes={REVEAL_THEMES}
+          autoSearchImages={autoSearchImages}
         />
         <SideView
           isLoading={isPreviewLoading}

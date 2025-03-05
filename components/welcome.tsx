@@ -1,10 +1,11 @@
 'use client'
 
-import React, { FormEvent, ChangeEvent } from 'react';
-import { Wand2 } from 'lucide-react';
+import React, { FormEvent, ChangeEvent, useState, useEffect, useRef } from 'react';
+import { Wand2, Image as ImageIcon, ChevronDown, ChevronUp, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from './ui/textarea';
 import Image from 'next/image';
+import PixabayButton from './pixabay-button';
 import {
   Select,
   SelectContent,
@@ -12,6 +13,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+
+// Add custom styles for Pixabay references
+const pixabayReferenceStyles = `
+  .pixabay-reference {
+    font-size: 0.5rem !important;
+    line-height: 0.9 !important;
+    color: #71717a !important;
+    opacity: 0.7;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
+    white-space: normal !important;
+    display: inline-block;
+    margin-bottom: 0.15rem;
+  }
+  .pixabay-reference a {
+    color: #71717a !important;
+    text-decoration: none;
+  }
+`;
 
 const Examples = [
   "RGM levers in CPG industry",
@@ -37,9 +59,37 @@ interface Props {
   theme?: string
   setTheme?: (theme: string) => void
   themes?: string[]
+  autoSearchImages?: boolean
 }
 
-export default function Welcome({onSubmit, onChange, value, setChatInput, theme, setTheme, themes}: Props) {
+export default function Welcome({onSubmit, onChange, value, setChatInput, theme, setTheme, themes, autoSearchImages = false}: Props) {
+  // New state for advanced options visibility
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [showExamples, setShowExamples] = useState(true);
+  const [showThemes, setShowThemes] = useState(false);
+  const [displayValue, setDisplayValue] = useState(value);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Function to format the display value with better URL wrapping
+  useEffect(() => {
+    // This will just use the raw value for now, but we could enhance it later
+    // to show shortened URLs while preserving the full URLs in the actual value
+    setDisplayValue(value);
+  }, [value]);
+
+  // Apply custom styles for Pixabay references
+  useEffect(() => {
+    // Add styles to head
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = pixabayReferenceStyles;
+    document.head.appendChild(styleElement);
+
+    // Cleanup on unmount
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
+
   const handleClick = (example: string) => {
     setChatInput(example)
   }
@@ -49,6 +99,26 @@ export default function Welcome({onSubmit, onChange, value, setChatInput, theme,
       event.preventDefault();
       onSubmit();
     }
+  };
+
+  // Handle inserting Pixabay image HTML into the input
+  const handleInsertImage = (html: string) => {
+    // Add the Markdown image syntax to the current input
+    const newInput = value + (value ? '\n\n' : '') + 'Include this image in the presentation:\n' + html;
+    setChatInput(newInput);
+  };
+
+  // Handle inserting multiple Pixabay images into the input
+  const handleInsertMultipleImages = (htmlArray: string[]) => {
+    if (htmlArray.length === 0) return;
+    
+    // Create a more compact representation of images
+    let newInput = value + (value ? '\n\n' : '') + 'Include these images in the presentation:';
+    htmlArray.forEach((html, index) => {
+      newInput += `\n\n${html}`;
+    });
+    
+    setChatInput(newInput);
   };
 
   return (
@@ -71,103 +141,161 @@ export default function Welcome({onSubmit, onChange, value, setChatInput, theme,
       </div>
       
       <div className="max-w-3xl w-full mx-auto rounded-xl bg-slate-800/40 backdrop-blur-sm border border-slate-700 shadow-xl shadow-indigo-500/5 overflow-hidden">
-        {/* Description section */}
+        {/* Description section - simplified and more focused */}
         <div className="p-6 border-b border-slate-700/50">
           <p className="text-center text-slate-300 leading-relaxed">
             Create beautiful presentations with AI. Just describe what you want.
-            <span className="mt-3 block font-medium text-indigo-300 text-sm">
-              To start, get a free Google Gemini API key from <a href="https://makersuite.google.com/app/apikey" target="_blank" className="underline hover:text-indigo-200 transition-colors">Google AI Studio</a> and enter it in the settings.
-            </span>
+            {autoSearchImages && (
+              <span className="ml-2 inline-flex items-center text-indigo-300 text-sm">
+                <ImageIcon size={14} className="mr-1" /> Auto image search enabled
+              </span>
+            )}
           </p>
         </div>
         
-        {/* Input form */}
+        {/* Input form - Made more prominent */}
         <div className="p-6">
           <form className="relative" onSubmit={onSubmit}>
             <Textarea
-              className="w-full p-4 pr-14 text-base text-white bg-slate-900/80 border border-slate-700 rounded-lg resize-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none shadow-inner shadow-black/20"
-              rows={3}
+              ref={textAreaRef}
+              className="w-full p-4 pr-14 text-sm text-white bg-slate-900/80 border border-slate-700 rounded-lg resize-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none shadow-inner shadow-black/20 overflow-wrap-break-word break-words whitespace-pre-wrap"
+              rows={4} // Increased size for prominence
               value={value}
               onKeyDown={handleKeyDown}
               onChange={onChange}
               placeholder="Describe your presentation topic..."
+              style={{ wordBreak: 'break-word', overflowWrap: 'break-word', fontSize: '0.875rem', lineHeight: '1.25rem' }}
             />
-            {value && 
-            <Button 
-              type="submit"
-              variant="secondary" 
-              size="icon" 
-              className='absolute right-3 top-3 bg-indigo-600 hover:bg-indigo-700 text-white p-1.5 rounded-full shadow-md transition-all duration-300 hover:scale-110'
-            >
-              <Wand2 className="h-5 w-5 text-white" />
-            </Button>}
-            <div className="absolute left-4 bottom-2 text-xs text-slate-400">
-              <span className="font-medium">Powered by AI</span>
-            </div>
-          </form>
-        </div>
-        
-        {/* Examples section */}
-        <div className="px-6 pb-6">
-          <p className="text-sm text-slate-300 mb-3 font-medium flex items-center">
-            <span className="inline-block w-4 h-px bg-indigo-400 mr-2"></span>
-            Try one of these examples:
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {Examples.map((example, index) => (
-              <button 
-                key={index} 
-                className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-full text-sm text-slate-300 hover:bg-indigo-600/20 hover:border-indigo-500 hover:text-white transition-all duration-300 text-left"
-                onClick={() => handleClick(example)}
+            <div className="absolute right-3 top-3 flex space-x-2">
+              {value && 
+              <Button 
+                type="submit"
+                variant="secondary" 
+                size="icon" 
+                className='bg-indigo-600 hover:bg-indigo-700 text-white p-1.5 rounded-full shadow-md transition-all duration-300 hover:scale-110'
               >
-                {example}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Theme selector */}
-        {themes && setTheme && theme && (
-          <div className="px-6 pb-6 border-t border-slate-700/50 pt-6">
-            <p className="text-sm text-slate-300 mb-3 font-medium flex items-center">
-              <span className="inline-block w-4 h-px bg-indigo-400 mr-2"></span>
-              Select a presentation theme:
-            </p>
-            <Select value={theme} onValueChange={setTheme}>
-              <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-slate-300 focus:ring-indigo-500">
-                <SelectValue placeholder="Select a theme" />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                {themes.map((themeName) => (
-                  <SelectItem key={themeName} value={themeName} className="text-slate-300 hover:bg-indigo-600/20 hover:text-white">
-                    {themeName.charAt(0).toUpperCase() + themeName.slice(1)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <Wand2 className="h-5 w-5 text-white" />
+              </Button>}
+            </div>
             
-            {/* Theme preview */}
-            <div className="mt-3 rounded-lg border border-slate-700 bg-slate-800/50 overflow-hidden">
-              <div className="text-center text-xs text-slate-400 py-2 border-b border-slate-700/50">Theme Preview: {theme.charAt(0).toUpperCase() + theme.slice(1)}</div>
-              <div className="relative h-[150px] w-full overflow-hidden">
-                {themePreviewImages[theme] ? (
-                  <Image 
-                    src={themePreviewImages[theme]} 
-                    alt={`${theme} theme preview`}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-slate-900 text-slate-400 text-xs">
-                    Preview not available
-                  </div>
-                )}
+            {/* Helper text */}
+            <div className="mt-2 flex justify-between items-center">
+              <div className="text-xs text-slate-400">
+                <span className="font-medium">Powered by AI</span>
+                <span className="ml-2 text-slate-500">• Press Enter to generate</span>
+              </div>
+              
+              {/* Get API key help */}
+              <div className="text-xs text-indigo-300">
+                <a href="https://makersuite.google.com/app/apikey" target="_blank" className="hover:text-indigo-200 transition-colors">
+                  Get Gemini API Key
+                </a>
               </div>
             </div>
+          </form>
+          
+          {/* Examples toggle */}
+          <div className="mt-4">
+            <button 
+              onClick={() => setShowExamples(!showExamples)}
+              className="w-full flex items-center justify-between px-3 py-2 bg-slate-800/60 border border-slate-700 rounded-md text-slate-300 hover:bg-slate-800 transition-all"
+            >
+              <span className="text-sm font-medium flex items-center">
+                <span className="inline-block w-4 h-px bg-indigo-400 mr-2"></span>
+                Example topics
+              </span>
+              {showExamples ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
             
-            <p className="mt-2 text-xs text-slate-400">
-              The theme will be applied to your presentation when generated.
-            </p>
+            {/* Examples content - collapsed by default */}
+            {showExamples && (
+              <div className="mt-2 flex flex-wrap gap-2">
+                {Examples.map((example, index) => (
+                  <button 
+                    key={index} 
+                    className="px-4 py-2 bg-slate-800 border border-slate-700 rounded-full text-sm text-slate-300 hover:bg-indigo-600/20 hover:border-indigo-500 hover:text-white transition-all duration-300 text-left"
+                    onClick={() => handleClick(example)}
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Advanced Options Toggle */}
+        <div className="px-6 pb-3 border-t border-slate-700/50 pt-3">
+          <button 
+            onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
+            className="w-full flex items-center justify-between px-3 py-2 bg-slate-800/60 border border-slate-700 rounded-md text-slate-300 hover:bg-slate-800 transition-all"
+          >
+            <span className="text-sm font-medium flex items-center">
+              <Settings size={14} className="mr-2" />
+              Advanced Options
+            </span>
+            {showAdvancedOptions ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </button>
+        </div>
+
+        {/* Advanced Options Content - Hidden by default */}
+        {showAdvancedOptions && (
+          <div className="px-6 pb-6">
+            {/* Image insertion option */}
+            <div className="mb-4 pt-2">
+              <p className="text-sm text-slate-300 mb-2">Add images to your presentation:</p>
+              <div className="flex justify-start">
+                <div className="bg-slate-800 rounded-md p-2 inline-block">
+                  <PixabayButton 
+                    onInsertImage={handleInsertImage} 
+                    onInsertMultipleImages={handleInsertMultipleImages}
+                    allowMultiple={true}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Theme selector */}
+            {themes && setTheme && theme && (
+              <div className="mb-2">
+                <p className="text-sm text-slate-300 mb-2">Presentation theme:</p>
+                <Select value={theme} onValueChange={setTheme}>
+                  <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-slate-300 focus:ring-indigo-500">
+                    <SelectValue placeholder="Select a theme" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-700">
+                    {themes.map((themeName) => (
+                      <SelectItem key={themeName} value={themeName} className="text-slate-300 hover:bg-indigo-600/20 hover:text-white">
+                        {themeName.charAt(0).toUpperCase() + themeName.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {/* Theme preview */}
+                <div className="mt-2 rounded-lg border border-slate-700 bg-slate-800/50 overflow-hidden">
+                  <div className="text-center text-xs text-slate-400 py-2 border-b border-slate-700/50">Theme Preview: {theme.charAt(0).toUpperCase() + theme.slice(1)}</div>
+                  <div className="relative h-[120px] w-full overflow-hidden">
+                    {themePreviewImages[theme] ? (
+                      <Image 
+                        src={themePreviewImages[theme]} 
+                        alt={`${theme} theme preview`}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-slate-900 text-slate-400 text-xs">
+                        Preview not available
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <p className="mt-2 text-xs text-slate-400">
+                  The theme will be applied to your presentation when generated.
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>

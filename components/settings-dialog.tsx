@@ -12,6 +12,10 @@ interface SettingsDialogProps {
   onSystemPromptChange: (prompt: string) => void
   htmlTemplate: string
   onHtmlTemplateChange: (template: string) => void
+  pixabayApiKey?: string
+  onPixabayApiKeyChange?: (key: string) => void
+  autoSearchImages?: boolean
+  onAutoSearchImagesChange?: (enabled: boolean) => void
 }
 
 export default function SettingsDialog({ 
@@ -22,17 +26,25 @@ export default function SettingsDialog({
   systemPrompt,
   onSystemPromptChange,
   htmlTemplate,
-  onHtmlTemplateChange
+  onHtmlTemplateChange,
+  pixabayApiKey = '',
+  onPixabayApiKeyChange = () => {},
+  autoSearchImages = true,
+  onAutoSearchImagesChange = () => {}
 }: SettingsDialogProps) {
   const [key, setKey] = useState(apiKey)
   const [prompt, setPrompt] = useState(systemPrompt)
   const [template, setTemplate] = useState(htmlTemplate)
+  const [pixabayKey, setPixabayKey] = useState(pixabayApiKey)
+  const [autoSearch, setAutoSearch] = useState(autoSearchImages)
 
   useEffect(() => {
     setKey(apiKey)
     setPrompt(systemPrompt)
     setTemplate(htmlTemplate)
-  }, [apiKey, systemPrompt, htmlTemplate])
+    setPixabayKey(pixabayApiKey)
+    setAutoSearch(autoSearchImages)
+  }, [apiKey, systemPrompt, htmlTemplate, pixabayApiKey, autoSearchImages])
 
   const handleSave = () => {
     if (!key.trim()) {
@@ -43,6 +55,8 @@ export default function SettingsDialog({
     onApiKeyChange(key)
     onSystemPromptChange(prompt)
     onHtmlTemplateChange(template)
+    onPixabayApiKeyChange(pixabayKey)
+    onAutoSearchImagesChange(autoSearch)
     toast.success('Settings saved successfully')
     onClose()
   }
@@ -78,6 +92,50 @@ export default function SettingsDialog({
             <p className="mt-1 text-xs text-slate-400">
               Get your API key from <a href="https://makersuite.google.com/app/apikey" target="_blank" className="text-indigo-400 hover:underline">Google AI Studio</a>
             </p>
+          </div>
+          
+          <div>
+            <label htmlFor="pixabayApiKey" className="block text-sm font-medium text-slate-300 mb-2">
+              Pixabay API Key (Optional)
+            </label>
+            <input
+              id="pixabayApiKey"
+              type="text"
+              value={pixabayKey}
+              onChange={(e) => setPixabayKey(e.target.value)}
+              className="w-full p-2 rounded-md bg-slate-900 border border-slate-700 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              placeholder="Enter your Pixabay API key"
+            />
+            <p className="mt-1 text-xs text-slate-400">
+              Get your API key from <a href="https://pixabay.com/api/docs/" target="_blank" className="text-indigo-400 hover:underline">Pixabay API</a>. Default key is provided but has limited usage.
+            </p>
+          </div>
+          
+          <div className="p-4 bg-slate-700/30 rounded-md border border-slate-600">
+            <div className="flex items-center mb-2">
+              <input
+                id="autoSearchImages"
+                type="checkbox"
+                checked={false}
+                disabled={true}
+                className="h-5 w-5 rounded border-slate-500 text-indigo-600 focus:ring-indigo-500 opacity-50"
+              />
+              <label htmlFor="autoSearchImages" className="ml-2 block text-sm font-medium text-white opacity-50">
+                Automatically search for images (disabled)
+              </label>
+            </div>
+            <p className="text-xs text-slate-300 ml-7">
+              This feature has been disabled. To add images to your presentation:
+            </p>
+            <ol className="text-xs text-slate-300 ml-7 mt-2 list-decimal pl-4">
+              <li className="mb-1">Click &quot;Advanced Options&quot; in the input area</li>
+              <li className="mb-1">Use the &quot;Search Images&quot; button to find and select images</li>
+              <li className="mb-1">Selected images will be added to your input text</li>
+            </ol>
+            <div className="mt-3 ml-7 px-3 py-2 bg-amber-800/20 border border-amber-700/30 rounded text-xs text-amber-200">
+              <strong>Note:</strong> Even with this feature disabled, the AI may still try to add images. 
+              If you want a completely image-free presentation, include &quot;no images please&quot; in your prompt.
+            </div>
           </div>
           
           <div>

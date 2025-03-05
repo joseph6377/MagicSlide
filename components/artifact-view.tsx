@@ -6,15 +6,16 @@ interface ArtifactViewProps {
   result: string
 }
 
-
 export function ArtifactView({
   result,
 }: ArtifactViewProps) {
-
   const [iframeKey, setIframeKey] = useState(0);
 
+  // Refresh iframe when the content changes
   useEffect(() => {
-    setIframeKey(prevKey => prevKey + 1);
+    if (result) {
+      setIframeKey(prevKey => prevKey + 1);
+    }
   }, [result]);
 
   if (!result) return null
@@ -29,7 +30,8 @@ export function ArtifactView({
         className="h-full w-full"
         sandbox="allow-forms allow-scripts allow-same-origin"
         loading="lazy"
-        src= {dataURI}
+        src={dataURI}
+        title="Presentation Preview"
       />
     </div>
   )

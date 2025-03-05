@@ -1,6 +1,5 @@
-import { Dispatch, SetStateAction, useState } from 'react'
-import { Download, LoaderCircle, Copy, FileType } from 'lucide-react'
-import html2pdf from 'html2pdf.js'
+import { Dispatch, SetStateAction } from 'react'
+import { Download, LoaderCircle, Copy, Maximize } from 'lucide-react'
 
 import {
   Tabs,
@@ -40,139 +39,106 @@ export default function SideView({
         toast('Copied to clipboard')
       })
       .catch(err => {
-        toast.error('Failed to copy: ' + content)
+        toast.error('Failed to copy')
       })
   }
 
   function download (content: string) {
-    const blob = new Blob([content], { type: 'text/plain' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.style.display = 'none'
-    a.href = url
-    a.download = "slidemagic.html"
-    document.body.appendChild(a)
-    a.click()
-    window.URL.revokeObjectURL(url)
-    document.body.removeChild(a)
+    try {
+      const blob = new Blob([content], { type: 'text/html' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.style.display = 'none'
+      a.href = url
+      a.download = "slidemagic.html"
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+      toast.success('Presentation downloaded successfully')
+    } catch (error) {
+      console.error('Download error:', error)
+      toast.error('Failed to download presentation')
+    }
   }
 
   function downloadAsPDF() {
+    // Currently disabled - PDF export is not available
+    toast.error('PDF download is currently unavailable')
+    return
+  }
+
+  function openFullscreenPreview() {
     if (!artifact?.code) {
-      toast.error('No presentation to download')
+      toast.error('No presentation to preview')
       return
     }
 
-    toast.info('Preparing PDF download...')
-    
-    // Create a temporary iframe to render the HTML
-    const iframe = document.createElement('iframe')
-    iframe.style.position = 'absolute'
-    iframe.style.visibility = 'hidden'
-    iframe.style.width = '1024px'
-    iframe.style.height = '768px'
-    document.body.appendChild(iframe)
-    
-    const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document
-    
-    if (iframeDocument) {
-      iframeDocument.open()
-      iframeDocument.write(artifact.code)
-      iframeDocument.close()
+    try {
+      // Create a new window with the presentation in fullscreen mode
+      const newWindow = window.open('', '_blank')
+      if (!newWindow) {
+        toast.error('Fullscreen preview blocked by browser. Please allow popups.')
+        return
+      }
+
+      // Add title and favicon to new window
+      const title = artifact.code.match(/<title>(.*?)<\/title>/i)?.[1] || 'SlideMagic Presentation'
       
-      // Wait for the iframe content to load
-      setTimeout(() => {
-        try {
-          // Try to access the Reveal object in the iframe
-          const iframeWindow = iframe.contentWindow
+      // Write the presentation HTML to the new window
+      newWindow.document.write(artifact.code)
+      
+      // Add a script to auto-initialize Reveal.js in fullscreen
+      const fullscreenScript = document.createElement('script')
+      fullscreenScript.textContent = `
+        document.addEventListener('DOMContentLoaded', function() {
+          // Set window title
+          document.title = "${title}";
           
-          if (iframeWindow && iframeWindow.Reveal) {
-            // If Reveal.js is being used, use its PDF export functionality
-            iframeWindow.Reveal.configure({ 
-              pdf: { 
-                format: 'letter',
-                landscape: true,
-                margin: 0.5
-              }
+          if (typeof Reveal !== 'undefined') {
+            Reveal.initialize({
+              controls: true,
+              progress: true,
+              history: true,
+              center: true,
+              width: '100%',
+              height: '100%',
+              margin: 0.1,
+              minScale: 0.2,
+              maxScale: 2.0,
+              transition: 'slide',
+              transitionSpeed: 'default',
+              backgroundTransition: 'fade'
             });
             
-            // Trigger Reveal's PDF export
-            iframeWindow.location.href = iframeWindow.location.href.replace(/#.*$/, '') + '?print-pdf';
-            
-            // Wait for print mode to be ready then generate PDF
-            setTimeout(() => {
-              const element = iframeDocument.documentElement;
-              const options = {
-                margin: 0.5,
-                filename: 'slidemagic.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
-              };
-              
-              html2pdf().set(options).from(element).save().then(() => {
-                document.body.removeChild(iframe);
-                toast.success('PDF downloaded successfully');
-              }).catch(error => {
-                console.error('PDF generation error:', error);
-                toast.error('Failed to generate PDF');
-                document.body.removeChild(iframe);
-              });
-            }, 1500);
-          } else {
-            // If not using Reveal.js, try a different approach to make all slides visible
-            
-            // Add a style tag to make all slides visible
-            const styleElement = iframeDocument.createElement('style');
-            styleElement.textContent = `
-              .slides > section, .slides > section > section {
-                display: block !important;
-                position: relative !important;
-                margin: 20px 0 !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-                transform: none !important;
-                page-break-after: always;
+            // Enter fullscreen automatically after a short delay
+            setTimeout(function() {
+              try {
+                if (document.documentElement.requestFullscreen) {
+                  document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                  document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                  document.documentElement.msRequestFullscreen();
+                }
+              } catch (error) {
+                console.warn('Fullscreen request failed:', error);
               }
-              .reveal .slides {
-                display: block !important;
-                height: auto !important;
-                position: static !important;
-                transform: none !important;
-              }
-            `;
-            iframeDocument.head.appendChild(styleElement);
-            
-            // Process for PDF
-            setTimeout(() => {
-              const element = iframeDocument.documentElement;
-              const options = {
-                margin: 0.5,
-                filename: 'slidemagic.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
-              };
-              
-              html2pdf().set(options).from(element).save().then(() => {
-                document.body.removeChild(iframe);
-                toast.success('PDF downloaded successfully');
-              }).catch(error => {
-                console.error('PDF generation error:', error);
-                toast.error('Failed to generate PDF');
-                document.body.removeChild(iframe);
-              });
             }, 1000);
+          } else {
+            console.warn('Reveal.js not found in the presentation');
           }
-        } catch (error) {
-          console.error('Error preparing PDF:', error);
-          toast.error('Failed to prepare PDF');
-          document.body.removeChild(iframe);
-        }
-      }, 1000);
-    } else {
-      toast.error('Failed to generate PDF');
-      document.body.removeChild(iframe);
+        });
+      `
+      newWindow.document.head.appendChild(fullscreenScript)
+      
+      // Close the document to finish loading
+      newWindow.document.close()
+      
+      toast.info('Opening fullscreen preview...')
+    } catch (error) {
+      console.error('Fullscreen preview error:', error)
+      toast.error('Failed to open fullscreen preview')
     }
   }
 
@@ -208,17 +174,39 @@ export default function SideView({
                       <Download className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => download(artifact.code || '')}>
+                  <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700">
+                    <DropdownMenuItem 
+                      onClick={() => download(artifact.code || '')} 
+                      className="text-slate-300 hover:bg-indigo-600/20 hover:text-white focus:bg-indigo-600/20 focus:text-white"
+                    >
                       Download as HTML
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={downloadAsPDF}>
-                      Download as PDF
+                    <DropdownMenuItem 
+                      className="text-slate-500 cursor-not-allowed" 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        downloadAsPDF();
+                      }}
+                    >
+                      Download as PDF (unavailable)
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                <Button variant="ghost" className='h-8 rounded-md px-3 text-slate-300 hover:text-white hover:bg-slate-700' title='Copy Code' onClick={() => copy(artifact.code || '')}>
+                <Button 
+                  variant="ghost" 
+                  className='h-8 rounded-md px-3 text-slate-300 hover:text-white hover:bg-slate-700' 
+                  title='Copy Code' 
+                  onClick={() => copy(artifact.code || '')}
+                >
                   <Copy className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className='h-8 rounded-md px-3 text-slate-300 hover:text-indigo-300 hover:bg-indigo-700/50' 
+                  title='Fullscreen Preview' 
+                  onClick={openFullscreenPreview}
+                >
+                  <Maximize className="h-4 w-4" />
                 </Button>
               </>
             )
