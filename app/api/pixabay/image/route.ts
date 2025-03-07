@@ -5,6 +5,9 @@ import fs from 'fs';
 import path from 'path';
 import { mkdir } from 'fs/promises';
 
+// Mark route as dynamic for Vercel deployment
+export const dynamic = 'force-dynamic';
+
 // Function to generate a cache key for an image URL
 const generateCacheKey = (url: string) => {
   return crypto.createHash('md5').update(url).digest('hex');

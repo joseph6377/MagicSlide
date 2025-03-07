@@ -55,9 +55,47 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+        typography: {
+          DEFAULT: {
+            css: {
+              maxWidth: '100%',
+              color: 'inherit',
+              a: {
+                color: '#3b82f6',
+                '&:hover': {
+                  color: '#2563eb',
+                },
+              },
+              h1: {
+                color: 'inherit',
+              },
+              h2: {
+                color: 'inherit',
+              },
+              h3: {
+                color: 'inherit',
+              },
+              h4: {
+                color: 'inherit',
+              },
+              p: {
+                color: 'inherit',
+              },
+              li: {
+                color: 'inherit',
+              },
+              blockquote: {
+                color: 'inherit',
+              },
+            },
+          },
+        },
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require('@tailwindcss/typography'),
+  ],
 };
 export default config;

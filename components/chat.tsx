@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import Welcome from './welcome'
 import { Input } from './ui/input'
 import Image from 'next/image'
-import PixabayButton from './pixabay-button'
+import WikimediaButton from './wikimedia-button'
 
 interface ChatProps {
   isLoading: boolean,
@@ -18,6 +18,9 @@ interface ChatProps {
   setTheme?: (theme: string) => void
   themes?: string[]
   autoSearchImages?: boolean
+  onAutoSearchImagesChange?: (enabled: boolean) => void
+  imageSource?: string
+  onImageSourceChange?: (source: string) => void
 }
 
 export default function Chat({
@@ -30,7 +33,10 @@ export default function Chat({
   theme,
   setTheme,
   themes,
-  autoSearchImages = false
+  autoSearchImages = false,
+  onAutoSearchImagesChange,
+  imageSource = 'wikimedia',
+  onImageSourceChange
 }: ChatProps) {
   // Extract the complex expression to a separate variable for dependency tracking
   const messagesLength = messages.length;
@@ -42,14 +48,14 @@ export default function Chat({
     }
   }, [messagesLength])
 
-  // Handle inserting Pixabay image HTML into the chat input
+  // Handle inserting image HTML into the chat input
   const handleInsertImage = (html: string) => {
     // Add the HTML to the current input
     const newInput = input + '\n\nInclude this image in the presentation:\n' + html;
     setChatInput(newInput);
   };
 
-  // Handle inserting multiple Pixabay images into the chat input
+  // Handle inserting multiple images into the chat input
   const handleInsertMultipleImages = (htmlArray: string[]) => {
     if (htmlArray.length === 0) return;
     
@@ -122,7 +128,7 @@ export default function Chat({
                   onChange={handleInputChange}
                 />
                 <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                  <PixabayButton 
+                  <WikimediaButton 
                     onInsertImage={handleInsertImage} 
                     onInsertMultipleImages={handleInsertMultipleImages}
                     allowMultiple={true}
@@ -153,6 +159,9 @@ export default function Chat({
           setTheme={setTheme}
           themes={themes}
           autoSearchImages={autoSearchImages}
+          onAutoSearchImagesChange={onAutoSearchImagesChange}
+          imageSource={imageSource}
+          onImageSourceChange={onImageSourceChange}
         />}
     </div>
   )

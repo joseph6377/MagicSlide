@@ -59,4 +59,50 @@
   background: rgba(124, 58, 237, 0.8);
 }
 
+/* Rich Text Editor Styles */
+.ProseMirror {
+  min-height: 150px;
+  padding: 1rem;
+}
+
+.ProseMirror:focus {
+  outline: none;
+}
+
+/* Image styles for the editor */
+.image-wrapper {
+  position: relative;
+  display: inline-block;
+  margin: 1rem 0;
+}
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.resize-handle {
+  transition: opacity 0.2s;
+  opacity: 0.7;
+}
+
+.resize-handle:hover {
+  opacity: 1;
+}
+
+/* Ensure images don't overflow in the editor */
+.ProseMirror img {
+  max-width: 100%;
+}
+
+/* Style image captions if needed */
+.ProseMirror .image-caption {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-top: 0.5rem;
+}
+
 

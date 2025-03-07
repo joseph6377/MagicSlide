@@ -136,11 +136,9 @@ export function useImageMatcher(options: UseImageMatcherOptions = {}): UseImageM
     } else {
       // For content slides, insert the image with attribution
       imageHtml = `
-<div style="display: flex; flex-direction: column; align-items: center; margin: 20px 0;">
-  <img src="${image.largeImageURL}" alt="${slide.title}" style="max-width: 100%; max-height: 70vh; object-fit: contain;" />
-  <div style="font-size: 12px; margin-top: 10px; opacity: 0.7; align-self: flex-end;">
-    Image by ${image.user} on Pixabay
-  </div>
+<div class="image-container">
+  <img src="${image.largeImageURL}" alt="${slide.title}" class="presentation-image" />
+  <p class="image-caption">Image by ${image.user} on Pixabay</p>
 </div>`;
     }
     

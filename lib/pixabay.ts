@@ -6,7 +6,7 @@
 // Pixabay API endpoint
 const PIXABAY_API_URL = 'https://pixabay.com/api/';
 
-// Default API key - replace with your own or use from environment
+// Default API key - using the one provided by the user
 const DEFAULT_API_KEY = process.env.PIXABAY_API_KEY || '49170333-b9269c8d15b388c14bcbbe621';
 
 /**
@@ -188,20 +188,14 @@ export function generateRevealJsPixabayImage(
   width?: number,
   height?: number
 ): string {
-  const imageStyle = [];
-  if (width) imageStyle.push(`width: ${width}px`);
-  if (height) imageStyle.push(`height: ${height}px`);
-  
   return `
-    <div class="r-stretch" style="display: flex; flex-direction: column; align-items: center;">
+    <div class="image-container">
       <img 
         src="${imageUrl}" 
         alt="Pixabay Image" 
-        style="${imageStyle.join('; ')}; max-width: 100%; max-height: 70vh; object-fit: contain;"
+        class="presentation-image"
       />
-      <div style="font-size: 12px; margin-top: 10px; opacity: 0.7; align-self: flex-end;">
-        ${attribution}
-      </div>
+      <p class="image-caption">${attribution}</p>
     </div>
   `;
 } 

@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { searchPixabayImages, PixabaySearchParams } from '@/lib/pixabay';
 import { cookies } from 'next/headers';
 
-// Default Pixabay API key - using the one from the example
+// Mark route as dynamic for Vercel deployment
+export const dynamic = 'force-dynamic';
+
+// Default Pixabay API key - using the one provided by the user
 const DEFAULT_PIXABAY_API_KEY = process.env.PIXABAY_API_KEY || '49170333-b9269c8d15b388c14bcbbe621';
 
 // Rate limiting - simple in-memory implementation

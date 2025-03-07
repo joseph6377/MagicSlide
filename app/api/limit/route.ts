@@ -1,11 +1,17 @@
+import { NextResponse } from 'next/server';
 import ratelimit from '@/lib/ratelimit'
 
-export const maxDuration = 60
+// Route config
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
 
-const rateLimitMaxRequests = 10
-const ratelimitWindow = '1d'
+// Constants (not exported)
+const rateLimitMaxRequests = 100;
+const ratelimitWindow = '1d';
 
-
+/**
+ * GET handler for rate limit info
+ */
 export async function GET(req: Request) {
   const limit = await ratelimit(req.headers.get('x-forwarded-for'), rateLimitMaxRequests, ratelimitWindow)
 

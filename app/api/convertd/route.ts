@@ -1,6 +1,10 @@
+import { NextResponse } from 'next/server';
+
 // import { supabase } from '@/lib/supabase';
 
 // No need for file upload, we'll just return a data URL
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   const { artifact } = await req.json()
   

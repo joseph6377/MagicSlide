@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from 'react'
-import { Download, LoaderCircle, Copy, Maximize } from 'lucide-react'
+import { Download, LoaderCircle, Copy, Maximize, Edit2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 import {
   Tabs,
@@ -33,6 +34,8 @@ export default function SideView({
   artifact
 
 }: SideViewProps) {
+  const router = useRouter();
+
   function copy (content: string) {
     navigator.clipboard.writeText(content)
       .then(() => {
@@ -142,6 +145,26 @@ export default function SideView({
     }
   }
 
+  function openEditPage() {
+    if (!artifact?.code) {
+      toast.error('No presentation to edit')
+      return
+    }
+
+    try {
+      // Store the presentation code in localStorage
+      localStorage.setItem('presentationToEdit', artifact.code);
+      
+      // Navigate to the edit page
+      router.push('/edit-presentation');
+      
+      toast.info('Opening presentation editor...')
+    } catch (error) {
+      console.error('Edit navigation error:', error)
+      toast.error('Failed to open presentation editor')
+    }
+  }
+
   if (!artifact) {
     return null
   }
@@ -199,6 +222,14 @@ export default function SideView({
                   onClick={() => copy(artifact.code || '')}
                 >
                   <Copy className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  className='h-8 rounded-md px-3 text-slate-300 hover:text-amber-300 hover:bg-amber-700/50' 
+                  title='Edit Presentation' 
+                  onClick={openEditPage}
+                >
+                  <Edit2 className="h-4 w-4" />
                 </Button>
                 <Button 
                   variant="ghost" 

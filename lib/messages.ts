@@ -44,7 +44,13 @@ export async function toMessageImage(files: FileList | null) {
   }
 
   return Promise.all(Array.from(files).map(async file => {
+    // Validate that the file is an image
+    if (!file.type.startsWith('image/')) {
+      console.warn(`File "${file.name}" is not an image (type: ${file.type}). Skipping.`);
+      return null;
+    }
+    
     const base64 = Buffer.from(await file.arrayBuffer()).toString('base64')
     return `data:${file.type};base64,${base64}`
-  }))
+  })).then(results => results.filter(Boolean) as string[]) // Filter out null values
 }

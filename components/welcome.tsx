@@ -5,7 +5,7 @@ import { Wand2, Image as ImageIcon, ChevronDown, ChevronUp, Settings } from 'luc
 import { Button } from '@/components/ui/button';
 import { Textarea } from './ui/textarea';
 import Image from 'next/image';
-import PixabayButton from './pixabay-button';
+import WikimediaButton from './wikimedia-button';
 import {
   Select,
   SelectContent,
@@ -14,9 +14,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-// Add custom styles for Pixabay references
-const pixabayReferenceStyles = `
-  .pixabay-reference {
+// Add custom styles for Wikimedia references
+const referenceStyles = `
+  .wikimedia-reference {
     font-size: 0.5rem !important;
     line-height: 0.9 !important;
     color: #71717a !important;
@@ -29,7 +29,7 @@ const pixabayReferenceStyles = `
     display: inline-block;
     margin-bottom: 0.15rem;
   }
-  .pixabay-reference a {
+  .wikimedia-reference a {
     color: #71717a !important;
     text-decoration: none;
   }
@@ -60,9 +60,24 @@ interface Props {
   setTheme?: (theme: string) => void
   themes?: string[]
   autoSearchImages?: boolean
+  onAutoSearchImagesChange?: (enabled: boolean) => void
+  imageSource?: string
+  onImageSourceChange?: (source: string) => void
 }
 
-export default function Welcome({onSubmit, onChange, value, setChatInput, theme, setTheme, themes, autoSearchImages = false}: Props) {
+export default function Welcome({
+  onSubmit, 
+  onChange, 
+  value, 
+  setChatInput, 
+  theme, 
+  setTheme, 
+  themes, 
+  autoSearchImages = false,
+  onAutoSearchImagesChange,
+  imageSource = 'wikimedia',
+  onImageSourceChange
+}: Props) {
   // New state for advanced options visibility
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [showExamples, setShowExamples] = useState(true);
@@ -77,11 +92,11 @@ export default function Welcome({onSubmit, onChange, value, setChatInput, theme,
     setDisplayValue(value);
   }, [value]);
 
-  // Apply custom styles for Pixabay references
+  // Apply custom styles for Wikimedia references
   useEffect(() => {
     // Add styles to head
     const styleElement = document.createElement('style');
-    styleElement.innerHTML = pixabayReferenceStyles;
+    styleElement.innerHTML = referenceStyles;
     document.head.appendChild(styleElement);
 
     // Cleanup on unmount
@@ -101,14 +116,14 @@ export default function Welcome({onSubmit, onChange, value, setChatInput, theme,
     }
   };
 
-  // Handle inserting Pixabay image HTML into the input
+  // Handle inserting image HTML into the input
   const handleInsertImage = (html: string) => {
     // Add the Markdown image syntax to the current input
     const newInput = value + (value ? '\n\n' : '') + 'Include this image in the presentation:\n' + html;
     setChatInput(newInput);
   };
 
-  // Handle inserting multiple Pixabay images into the input
+  // Handle inserting multiple images into the input
   const handleInsertMultipleImages = (htmlArray: string[]) => {
     if (htmlArray.length === 0) return;
     
@@ -145,11 +160,6 @@ export default function Welcome({onSubmit, onChange, value, setChatInput, theme,
         <div className="p-6 border-b border-slate-700/50">
           <p className="text-center text-slate-300 leading-relaxed">
             Create beautiful presentations with AI. Just describe what you want.
-            {autoSearchImages && (
-              <span className="ml-2 inline-flex items-center text-indigo-300 text-sm">
-                <ImageIcon size={14} className="mr-1" /> Auto image search enabled
-              </span>
-            )}
           </p>
         </div>
         
@@ -241,12 +251,48 @@ export default function Welcome({onSubmit, onChange, value, setChatInput, theme,
         {/* Advanced Options Content - Hidden by default */}
         {showAdvancedOptions && (
           <div className="px-6 pb-6">
+            {/* Auto Image Search Setting */}
+            <div className="mb-4 pt-2 bg-slate-800/40 p-3 rounded-md border border-slate-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <ImageIcon size={16} className="text-indigo-400 mr-2" />
+                  <span className="text-sm text-slate-300">Auto Image Search</span>
+                </div>
+                <div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={autoSearchImages} 
+                      onChange={e => onAutoSearchImagesChange && onAutoSearchImagesChange(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 after:border-slate-400 after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600 after:peer-checked:bg-slate-200 after:peer-checked:border-slate-200"></div>
+                  </label>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400 mt-2">
+                {autoSearchImages 
+                  ? "AI will automatically search for relevant images based on your presentation topic." 
+                  : "Auto image search is disabled. Images will only be included when explicitly requested."}
+              </p>
+              
+              {/* Image Source info - now just shows Wikimedia as the only option */}
+              {autoSearchImages && (
+                <div className="mt-3 pt-3 border-t border-slate-700/50">
+                  <span className="text-xs text-slate-300 mb-2 block">Image Source: Wikimedia Commons</span>
+                  <p className="text-xs text-slate-400 mt-2">
+                    Wikimedia Commons provides freely usable media files that can be used in your presentations.
+                  </p>
+                </div>
+              )}
+            </div>
+            
             {/* Image insertion option */}
             <div className="mb-4 pt-2">
-              <p className="text-sm text-slate-300 mb-2">Add images to your presentation:</p>
-              <div className="flex justify-start">
+              <p className="text-sm text-slate-300 mb-2">Search and add images to your presentation:</p>
+              <div className="flex justify-start space-x-2">
                 <div className="bg-slate-800 rounded-md p-2 inline-block">
-                  <PixabayButton 
+                  <WikimediaButton 
                     onInsertImage={handleInsertImage} 
                     onInsertMultipleImages={handleInsertMultipleImages}
                     allowMultiple={true}

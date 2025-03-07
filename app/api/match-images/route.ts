@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { extractSlidesFromHTML, generateQueriesForSlide, matchImagesToSlides } from '@/lib/slide-image-matcher';
 import { ImageSearchQuery, ImageSearchResult } from '@/lib/slide-image-matcher';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+
+// Mark route as dynamic for Vercel deployment
+export const dynamic = 'force-dynamic';
+
+// Default API key
+const DEFAULT_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyAjL409EbFBR1uiU1ziVpTk5qTD-yoZVeM';
 
 interface MatchImagesRequest {
   html: string;

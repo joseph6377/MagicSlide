@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 
-// Default API key - will be replaced with the user's key
-const DEFAULT_API_KEY = '';
+// Mark route as dynamic for Vercel deployment
+export const dynamic = 'force-dynamic';
+
+// Default API key
+const DEFAULT_API_KEY = 'AIzaSyAjL409EbFBR1uiU1ziVpTk5qTD-yoZVeM';
 
 interface QueryGenerationRequest {
   topic: string;

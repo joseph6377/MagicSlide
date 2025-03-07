@@ -25,11 +25,8 @@ const REVEAL_THEMES = [
   'solarized'
 ]
 
-// The default API key - empty by default
-const DEFAULT_API_KEY = '';
-
-// Default Pixabay API key - using the one from the example
-const DEFAULT_PIXABAY_API_KEY = '49170333-b9269c8d15b388c14bcbbe621';
+// The default API key - using the one provided by the user
+const DEFAULT_API_KEY = 'AIzaSyAjL409EbFBR1uiU1ziVpTk5qTD-yoZVeM';
 
 // Default system prompt (content instructions only)
 const DEFAULT_SYSTEM_PROMPT = `
@@ -42,6 +39,21 @@ Create a comprehensive and engaging presentation with the following structure:
 
 Use professional language and ensure all content is well-structured and easy to follow.
 Make the content informative, engaging and visually descriptive.
+
+Charts and Diagrams:
+- You can generate data visualizations using Chart.js if the user requests them with "--charts"
+- You can create flowcharts and diagrams using Mermaid.js if the user requests them with "--flowchart"
+- For flowcharts, keep them simple with 5-7 nodes maximum for better readability
+- Each flowchart should be on its own dedicated slide with minimal other content
+- Use top-down (TD) orientation for flowcharts to fit better on slides
+- Charts and diagrams will be automatically sized to fit properly on slides
+
+Icons:
+- You can include Font Awesome 6 Free (Solid) icons if the user requests them
+- Use the format <i class="fas fa-[icon-name]"></i> to add icons
+- Icons can be styled with additional classes: icon-large, icon-medium, icon-small
+- Use icon-list class for lists with icons
+- Use icon-grid class for a grid layout of icons
 `;
 
 export default function Home() {
@@ -50,11 +62,11 @@ export default function Home() {
   const [artifact, setArtifact] = useState<Partial<ArtifactSchema> | undefined>()
   const [isSettingsOpen, setSettingsOpen] = useState(false)
   const [apiKey, setApiKey] = useLocalStorage('slidemagic-api-key', DEFAULT_API_KEY)
-  const [pixabayApiKey, setPixabayApiKey] = useLocalStorage('slidemagic-pixabay-api-key', DEFAULT_PIXABAY_API_KEY)
   const [systemPrompt, setSystemPrompt] = useLocalStorage('slidemagic-system-prompt', DEFAULT_SYSTEM_PROMPT)
   const [htmlTemplate, setHtmlTemplate] = useLocalStorage('slidemagic-html-template', defaultHtmlTemplate)
   const [theme, setTheme] = useLocalStorage('slidemagic-theme', 'black')
   const [autoSearchImages, setAutoSearchImages] = useLocalStorage('slidemagic-auto-search-images', false)
+  const [imageSource, setImageSource] = useLocalStorage('slidemagic-image-source', 'wikimedia')
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [chatInput, setChatInput] = useLocalStorage('slidemagic-chat', '')
 
@@ -134,7 +146,8 @@ export default function Home() {
       apiKey: apiKey,
       systemPrompt: systemPrompt,
       htmlTemplate: themedHtmlTemplate,
-      autoSearchImages: autoSearchImages
+      autoSearchImages: autoSearchImages,
+      imageSource: imageSource
     })
 
     addMessage({
@@ -163,10 +176,6 @@ export default function Home() {
         onSystemPromptChange={setSystemPrompt}
         htmlTemplate={htmlTemplate}
         onHtmlTemplateChange={setHtmlTemplate}
-        pixabayApiKey={pixabayApiKey}
-        onPixabayApiKeyChange={setPixabayApiKey}
-        autoSearchImages={autoSearchImages}
-        onAutoSearchImagesChange={setAutoSearchImages}
       />
       <div className="flex-1 flex space-x-6 w-full pt-16 pb-6 px-6">
         <Chat
@@ -180,6 +189,9 @@ export default function Home() {
           setTheme={setTheme}
           themes={REVEAL_THEMES}
           autoSearchImages={autoSearchImages}
+          onAutoSearchImagesChange={setAutoSearchImages}
+          imageSource={imageSource}
+          onImageSourceChange={setImageSource}
         />
         <SideView
           isLoading={isPreviewLoading}
